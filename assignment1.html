@@ -1,0 +1,216 @@
+<!DOCTYPE html> 
+<html> 
+    <head> 
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+        <title>Nadir's Blink Assignment: Arduino Traffic Light</title> 
+
+        <link href="style.css" media="screen" rel="stylesheet" type="text/css" />
+
+    </head> 
+    <body> 
+
+        <div class="header">
+            <h1>Arduino Traffic Light</h1>
+            <p>
+            <img src="a1.jpg" width=400></a>
+            </p>
+            <p>
+                <h2>Schematic</h2>
+                <img src="439A1Schem.PNG" width=1200></a>
+                <h2>Code</h2>
+                    <embed>
+                        //Code sample was taken and modified from https://create.arduino.cc/projecthub/techno_z/arduino-traffic-light-simulator-2ec9f7
+                        <br><br>
+                        // variables
+                        <br><br>
+                        int GREEN = 12;
+                        <br><br>
+                        int YELLOW = 8;
+                        <br><br>
+                        int RED = 7;
+                        <br><br>
+                        int DELAY_GREEN = 5000;
+                        <br><br>
+                        int DELAY_YELLOW = 2000;
+                        <br><br>
+                        int DELAY_RED = 5000;
+                        <br><br>
+
+
+                        // basic functions
+                        <br><br>
+                        void setup()
+                        <br><br>
+                        {
+                            <br><br>
+                        pinMode(GREEN, OUTPUT);
+                        <br><br>
+                        pinMode(YELLOW, OUTPUT);
+                        <br><br>
+                        pinMode(RED, OUTPUT);
+                        <br><br>
+                        }
+                        <br><br>
+
+                        void loop()
+                        <br><br>
+                        {
+                            <br><br>
+                        green_light();
+                        <br><br>
+                        yellow_light();
+                        <br><br>
+                        red_light();
+                        <br><br>
+                        yellow_light();
+                        <br><br>
+                        }
+                        <br><br>
+
+                        void green_light()
+                        <br><br>
+                        {
+                            <br><br>
+                        //on for five seconds
+                        <br><br>
+                        digitalWrite(GREEN, HIGH);
+                        <br><br>
+                        digitalWrite(YELLOW, LOW);
+                        <br><br>
+                        digitalWrite(RED, LOW);
+                        <br><br>
+                        delay(DELAY_GREEN);
+                        <br><br>
+                        //flash for five seconds
+                        <br><br>
+                        digitalWrite(GREEN, LOW);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(GREEN, HIGH);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(GREEN, LOW);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(GREEN, HIGH);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(GREEN, LOW);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(GREEN, HIGH);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(GREEN, LOW);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(GREEN, HIGH);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(GREEN, LOW);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(GREEN, HIGH);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(GREEN, LOW);
+                        <br><br>
+                        
+                        }
+                        <br><br>
+
+                        void yellow_light()
+                        <br><br>
+                        {
+                            <br><br>
+                        digitalWrite(GREEN, LOW);
+                        <br><br>
+                        digitalWrite(YELLOW, HIGH);
+                        <br><br>
+                        digitalWrite(RED, LOW);
+                        <br><br>
+                        delay(DELAY_YELLOW);
+                        <br><br>
+                        }
+                        <br><br>
+
+                        void red_light()
+                        <br><br>
+                        {
+                            <br><br>
+                        //on for five seconds
+                        <br><br>
+                        digitalWrite(GREEN, LOW);
+                        <br><br>
+                        digitalWrite(YELLOW, LOW);
+                        <br><br>
+                        digitalWrite(RED, HIGH);
+                        <br><br>
+                        delay(DELAY_RED);
+                        <br><br>
+                        //flash for five seconds
+                        <br><br>
+                        digitalWrite(RED, LOW);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(RED, HIGH);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(RED, LOW);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(RED, HIGH);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(RED, LOW);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(RED, HIGH);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(RED, LOW);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(RED, HIGH);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(RED, LOW);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(RED, HIGH);
+                        <br><br>
+                        delay(500);
+                        <br><br>
+                        digitalWrite(RED, LOW);
+                        <br><br>
+                    }
+
+                </embed>
+                <h2>Result</h2>
+                <img src="a1.gif" width=400>
+            </p>
+        </div>
+        
+    </body>
+</html>
