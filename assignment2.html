@@ -1,0 +1,248 @@
+<!DOCTYPE html> 
+<html> 
+    <head> 
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+        <title>Nadir's Fade Assignment: Arduino Rainbow Light</title> 
+
+        <link href="style.css" media="screen" rel="stylesheet" type="text/css" />
+
+    </head> 
+    <body> 
+
+        <div class="header">
+            <h1>Arduino Rainbow Light</h1>
+            <p>
+            <img src="a2.jpg" width=400></a>
+            </p>
+            <p>
+                <h2>Schematic</h2>
+                <img src="439a2schem.PNG" width=1200></a>
+                <h2>Code</h2>
+                    <code>
+                        
+                        //modified from Debounce code @ http://www.arduino.cc/en/Tutorial/Debounce
+                        <br></br>
+
+                        // constants won't change. They're used here to set pin numbers:
+                        <br></br>
+                        const int buttonPin = 2;    // the number of the pushbutton pin
+                        <br></br>
+                        const int red = 11;      // the number of the red LED pin
+                        <br></br>
+                        const int green = 10;      // the number of the green LED pin
+                        <br></br>
+                        const int blue = 9;      // the number of the blue LED pin
+                        <br></br>
+                        // Variables will change:
+                        <br></br>
+                        int buttonState;             // the current reading from the input pin
+                        <br></br>
+                        int lastButtonState = LOW;   // the previous reading from the input pin
+                        <br></br>
+
+                        // the following variables are unsigned longs because the time, measured in
+                        <br></br>
+                        // milliseconds, will quickly become a bigger number than can be stored in an int.
+                        <br></br>
+                        unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+                        <br></br>
+                        unsigned long debounceDelay = 50;    // the debounce time; increase if the output flickers
+                        <br></br>
+
+                        void setup() {
+                            <br></br>
+                            pinMode(buttonPin, INPUT);
+                        <br></br>
+                            pinMode(red, OUTPUT);
+                            <br></br>
+                            pinMode(green, OUTPUT);
+                            <br></br>
+                            pinMode(blue, OUTPUT);
+                            <br></br>
+
+                            analogWrite(red, 0);
+                            <br></br>
+                            analogWrite(green, 0);
+                            <br></br>
+                            analogWrite(blue, 0);
+                            <br></br>
+                        }
+
+                        void loop() {
+                            <br></br>
+                        // read the state of the switch into a local variable:
+                        <br></br>
+                        int reading = digitalRead(buttonPin);
+                        <br></br>
+
+                        // check to see if you just pressed the button
+                        <br></br>
+                        // (i.e. the input went from LOW to HIGH), and you've waited long enough
+                        <br></br>
+                        // since the last press to ignore any noise:
+                        <br></br>
+
+                        // If the switch changed, due to noise or pressing:
+                        <br></br>
+                        if (reading != lastButtonState) {
+                            <br></br>
+                            // reset the debouncing timer
+                            <br></br>
+                            lastDebounceTime = millis();
+                            <br></br>
+                        }
+                        <br></br>
+
+                        if ((millis() - lastDebounceTime) > debounceDelay) {
+                            <br></br>
+                            // whatever the reading is at, it's been there for longer than the debounce
+                            <br></br>
+                            // delay, so take it as the actual current state:
+                            <br></br>
+
+                            // if the button state has changed:
+                            <br></br>
+                            if (reading != buttonState) {
+                                <br></br>
+                            buttonState = reading;
+                            <br></br>
+
+                            // only toggle the LED if the new button state is HIGH
+                            <br></br>
+                            if (buttonState == HIGH) {
+                                <br></br>
+                                rainbow();
+                                <br></br>
+                            } else {
+                                <br></br>
+
+                                analogWrite(red, 0);
+                                <br></br>
+                                analogWrite(green, 0);
+                                <br></br>
+                                analogWrite(blue, 0);
+                                <br></br>
+                            }
+                            <br></br>
+                        }
+                        <br></br>
+                    }
+                    <br></br>
+
+
+                        // save the reading. Next time through the loop, it'll be the lastButtonState:
+                        <br></br>
+                        lastButtonState = reading;
+                        <br></br>
+                        }
+                        <br></br>
+
+                        void rainbow() {
+                            <br></br>
+                        //fade in
+                        <br></br>
+                        for (int i = 0; i <= 255; i++) {
+                            <br></br>
+                            analogWrite(red, i);
+                            <br></br>
+                            delay(10);
+                            <br></br>
+                        }
+
+                        <br></br>
+                        //red
+                        <br></br>
+                        analogWrite(red, 255);
+                        <br></br>
+                        analogWrite(green, 0);
+                        <br></br>
+                        analogWrite(blue, 0);
+                        <br></br>
+                        delay(3000);
+                        <br></br>
+                        //orange
+                        <br></br>
+                        analogWrite(red, 255);
+                        <br></br>
+                        analogWrite(green, 70);
+                        <br></br>
+                        analogWrite(blue, 0);
+                        <br></br>
+                        delay(3000);
+                        <br></br>
+                        //yellow
+                        <br></br>
+                        analogWrite(red, 255);
+                        <br></br>
+                        analogWrite(green, 255);
+                        <br></br>
+                        analogWrite(blue, 0);
+                        <br></br>
+                        delay(3000);
+                        <br></br>
+                        //green
+                        <br></br>
+                        analogWrite(red, 0);
+                        <br></br>
+                        analogWrite(green, 255);
+                        <br></br>
+                        analogWrite(blue, 0);
+                        <br></br>
+                        delay(3000);
+                        <br></br>
+                        //blue
+                        <br></br>
+                        analogWrite(red, 0);
+                        <br></br>
+                        analogWrite(green, 0);
+                        <br></br>
+                        analogWrite(blue, 255);
+                        <br></br>
+                        delay(3000);
+                        <br></br>
+                        //indigo
+                        <br></br>
+                        analogWrite(red, 50);
+                        <br></br>
+                        analogWrite(green, 0);
+                        <br></br>
+                        analogWrite(blue, 100);
+                        <br></br>
+                        delay(3000);
+                        <br></br>
+                        //violet
+                        <br></br>
+                        
+                        analogWrite(red, 140);
+                        <br></br>
+                        analogWrite(green, 0);
+                        <br></br>
+                        analogWrite(blue, 255);
+                        <br></br>
+                        delay(3000);
+                        <br></br>
+                        //fade out
+                        <br></br>
+                        for (int i = 1; i <= 10; i++) {
+                            <br></br>
+                            analogWrite(red, 140 - (i * 14));
+                            <br></br>
+                            analogWrite(red, 240 - (i * 24));
+                            <br></br>
+                            delay(400);
+                            <br></br>
+                        }
+                        <br></br>
+                    }
+                    <br></br>
+
+                </code>
+                <h2>Result</h2>
+                <img src="a2.gif" width=400>
+            </p>
+        </div>
+        
+    </body>
+</html>
