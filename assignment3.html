@@ -1,0 +1,99 @@
+<!DOCTYPE html> 
+<html> 
+    <head> 
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+        <title>Nadir's Input Output Assignment: Arduino Nighht Light</title> 
+
+        <link href="style.css" media="screen" rel="stylesheet" type="text/css" />
+
+    </head> 
+    <body> 
+
+        <div class="header">
+            <h1>Arduino Night Light</h1>
+            <p>
+            <img src="a3.jpg" width=400></a>
+            </p>
+            <p>
+                <h2>Schematic</h2>
+                <img src="a3schem.PNG" width=1200></a>
+                <h2>Code</h2>
+                <code>
+                    <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #888888">/*</span>
+
+                        <span style="color: #888888">  Adapted from analog input out serial code.</span>
+                        <span style="color: #888888">  http://www.arduino.cc/en/Tutorial/AnalogInOutSerial</span>
+                        <span style="color: #888888">*/</span>
+
+                        <span style="color: #888888">// These constants won&#39;t change. They&#39;re used to give names to the pins used:</span>
+                        <span style="color: #008800; font-weight: bold">const</span> <span style="color: #333399; font-weight: bold">int</span> analogInPin <span style="color: #333333">=</span> A3;  <span style="color: #888888">// Analog input pin that the photoresistor is attached to</span>
+                        <span style="color: #008800; font-weight: bold">const</span> <span style="color: #333399; font-weight: bold">int</span> analogOutPin <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">9</span>;  <span style="color: #888888">// Analog output pin that the LED is attached to</span>
+                        
+                        <span style="color: #333399; font-weight: bold">int</span> sensorValue <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>;        <span style="color: #888888">// value read from the photoresistor</span>
+                        <span style="color: #333399; font-weight: bold">bool</span> on <span style="color: #333333">=</span> <span style="color: #007020">false</span>;            <span style="color: #888888">// state of light</span>
+
+                        <span style="color: #333399; font-weight: bold">void</span> <span style="color: #0066BB; font-weight: bold">setup</span>() {
+                        <span style="color: #888888">// initialize serial communications at 9600 bps:</span>
+                        Serial.begin(<span style="color: #0000DD; font-weight: bold">9600</span>);
+                        }
+
+                        <span style="color: #333399; font-weight: bold">void</span> <span style="color: #0066BB; font-weight: bold">loop</span>() {
+                        <span style="color: #888888">// read the analog in value:</span>
+                        sensorValue <span style="color: #333333">=</span> analogRead(analogInPin);
+                        <span style="color: #333399; font-weight: bold">int</span> outVal <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">255</span>; <span style="color: #888888">//output val set to max for LED</span>
+                        Serial.print(<span style="background-color: #fff0f0">&quot;init check &quot;</span>);
+                        Serial.print(sensorValue);
+                        <span style="color: #008800; font-weight: bold">if</span> (sensorValue <span style="color: #333333">&lt;=</span> <span style="color: #0000DD; font-weight: bold">10</span>) { <span style="color: #888888">// if sensor value less than 10 and it is dark</span>
+                            sensorValue <span style="color: #333333">=</span> analogRead(analogInPin);<span style="color: #888888">// double check to account for fluctation</span>
+                            delay(<span style="color: #0000DD; font-weight: bold">3000</span>);
+                            <span style="color: #008800; font-weight: bold">if</span> (sensorValue <span style="color: #333333">&lt;=</span> <span style="color: #0000DD; font-weight: bold">10</span>) {
+                            <span style="color: #008800; font-weight: bold">for</span> (<span style="color: #333399; font-weight: bold">int</span> i <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>; i <span style="color: #333333">&lt;=</span> <span style="color: #0000DD; font-weight: bold">255</span>; i<span style="color: #333333">++</span>) {
+                                analogWrite(analogOutPin, i);
+                                delay(<span style="color: #0000DD; font-weight: bold">20</span>);
+                                on <span style="color: #333333">=</span> <span style="color: #007020">true</span>;
+                            }
+                            }
+                        }
+                        
+                        <span style="color: #008800; font-weight: bold">while</span> (sensorValue <span style="color: #333333">&lt;=</span> <span style="color: #0000DD; font-weight: bold">10</span>) { <span style="color: #888888">// while sensor value stays low keep light on</span>
+                            Serial.print(<span style="background-color: #fff0f0">&quot;cycle check &quot;</span>);
+                            Serial.print(sensorValue);
+                            analogWrite(analogOutPin, outVal);
+                            sensorValue <span style="color: #333333">=</span> analogRead(analogInPin); <span style="color: #888888">// keep checking the value after 3 seconds</span>
+                            delay(<span style="color: #0000DD; font-weight: bold">3000</span>);
+                        }
+                        delay(<span style="color: #0000DD; font-weight: bold">3000</span>);
+                        sensorValue <span style="color: #333333">=</span> analogRead(analogInPin);
+                        Serial.print(<span style="background-color: #fff0f0">&quot;final check &quot;</span>);
+                        Serial.print(sensorValue);
+                        <span style="color: #888888">//once the sensor value exceeds 10, check it once more to account for random fluctations</span>
+                        <span style="color: #888888">// if it is low again then fade the light if it was on</span>
+                        <span style="color: #008800; font-weight: bold">if</span> (sensorValue <span style="color: #333333">&gt;=</span> <span style="color: #0000DD; font-weight: bold">100</span> <span style="color: #333333">&amp;&amp;</span> on) {
+                            <span style="color: #008800; font-weight: bold">for</span> (<span style="color: #333399; font-weight: bold">int</span> i <span style="color: #333333">=</span> sensorValue; i <span style="color: #333333">&gt;=</span> <span style="color: #0000DD; font-weight: bold">0</span>; i<span style="color: #333333">--</span>) {
+                            analogWrite(analogOutPin, i);
+                            on <span style="color: #333333">=</span> <span style="color: #007020">false</span>;
+                            delay(<span style="color: #0000DD; font-weight: bold">20</span>);
+                            }
+                        }
+                        
+                        
+                        <span style="color: #888888">// change the analog out value:</span>
+
+                        <span style="color: #888888">// print the results to the Serial Monitor:</span>
+
+
+                        <span style="color: #888888">// wait 2 milliseconds before the next loop for the analog-to-digital</span>
+                        <span style="color: #888888">// converter to settle after the last reading:</span>
+                        delay(<span style="color: #0000DD; font-weight: bold">2</span>);
+                        }
+                        </pre></div>
+                </code>
+                <h2>Result</h2>
+                <img src="a3.gif" width=400>
+            </p>
+        </div>
+        
+    </body>
+</html>
