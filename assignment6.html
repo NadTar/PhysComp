@@ -1,0 +1,319 @@
+<!DOCTYPE html> 
+<html> 
+    <head> 
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+        <title>Nadir's Talking to the Web Assignment: LED Color Setter</title> 
+
+        <link href="style.css" media="screen" rel="stylesheet" type="text/css" />
+
+    </head> 
+    <body> 
+
+        <div class="header">
+            <h1>Web-based LED Color Setter</h1>
+            <p>
+            <img src="a6.jpg" width=400></a>
+            </p>
+            <p>
+                <h2>Schematic</h2>
+                <img src="a6schem.PNG" width=1200></a>
+                <h2>Sketch.js Code</h2>
+                <code>
+                    <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">var</span> serial; <span style="color: #888888">// variable to hold an instance of the serialport library</span>
+                    <span style="color: #008800; font-weight: bold">var</span> portName <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;COM6&#39;</span> <span style="color: #888888">//rename to the name of your port</span>
+                    <span style="color: #008800; font-weight: bold">var</span> datain; <span style="color: #888888">//some data coming in over serial!</span>
+                    <span style="color: #008800; font-weight: bold">let</span> redInput; <span style="color: #888888">//color inputs</span>
+                    <span style="color: #008800; font-weight: bold">let</span> greenInput;
+                    <span style="color: #008800; font-weight: bold">let</span> blueInput;
+                    <span style="color: #008800; font-weight: bold">let</span> button;
+                    <span style="color: #008800; font-weight: bold">let</span> c;
+
+
+                    <span style="color: #008800; font-weight: bold">function</span> setup() {
+                    serial <span style="color: #333333">=</span> <span style="color: #008800; font-weight: bold">new</span> p5.SerialPort();       <span style="color: #888888">// make a new instance of the serialport library</span>
+                    serial.on(<span style="background-color: #fff0f0">&#39;list&#39;</span>, printList);       <span style="color: #888888">// set a callback function for the serialport list event</span>
+                    serial.on(<span style="background-color: #fff0f0">&#39;connected&#39;</span>, serverConnected); <span style="color: #888888">// callback for connecting to the server</span>
+                    serial.on(<span style="background-color: #fff0f0">&#39;open&#39;</span>, portOpen);        <span style="color: #888888">// callback for the port opening</span>
+                    serial.on(<span style="background-color: #fff0f0">&#39;data&#39;</span>, serialEvent);     <span style="color: #888888">// callback for when new data arrives</span>
+                    serial.on(<span style="background-color: #fff0f0">&#39;error&#39;</span>, serialError);    <span style="color: #888888">// callback for errors</span>
+                    serial.on(<span style="background-color: #fff0f0">&#39;close&#39;</span>, portClose);      <span style="color: #888888">// callback for the port closing</span>
+
+                    serial.list();                      <span style="color: #888888">// list the serial ports</span>
+                    serial.open(portName);              <span style="color: #888888">// open a serial port</span>
+                    createCanvas(<span style="color: #0000DD; font-weight: bold">1200</span>, <span style="color: #0000DD; font-weight: bold">800</span>);
+                    background(<span style="color: #005588; font-weight: bold">0x08</span>, <span style="color: #005588; font-weight: bold">0x16</span>, <span style="color: #005588; font-weight: bold">0x40</span>);
+                    
+                    redInput <span style="color: #333333">=</span> createInput(); <span style="color: #888888">//creating inputs per LED color</span>
+                    redInput.position(<span style="color: #0000DD; font-weight: bold">100</span>,<span style="color: #0000DD; font-weight: bold">350</span>);
+                    redInput.id(<span style="background-color: #fff0f0">&#39;rin&#39;</span>);
+                    blueInput <span style="color: #333333">=</span> createInput();
+                    blueInput.position(<span style="color: #0000DD; font-weight: bold">900</span> ,<span style="color: #0000DD; font-weight: bold">350</span>);
+                    blueInput.id(<span style="background-color: #fff0f0">&#39;bin&#39;</span>);
+                    greenInput <span style="color: #333333">=</span> createInput();
+                    greenInput.position(<span style="color: #0000DD; font-weight: bold">500</span>,<span style="color: #0000DD; font-weight: bold">350</span>);
+                    greenInput.id(<span style="background-color: #fff0f0">&#39;gin&#39;</span>)
+                    button <span style="color: #333333">=</span> createButton(<span style="background-color: #fff0f0">&#39;submit&#39;</span>);
+                    button.position(<span style="color: #0000DD; font-weight: bold">550</span>, <span style="color: #0000DD; font-weight: bold">450</span>);
+                    button.id(<span style="background-color: #fff0f0">&#39;sub&#39;</span>);
+                    <span style="color: #008800; font-weight: bold">let</span> x  <span style="color: #333333">=</span> <span style="color: #007020">document</span>.getElementById(<span style="background-color: #fff0f0">&#39;sub&#39;</span>);
+                    print(x);
+                    console.log(x);
+                    x.addEventListener(<span style="background-color: #fff0f0">&quot;click&quot;</span>, writeColor);
+                    print(x);
+                    console.log(x);
+                    }
+
+                    <span style="color: #888888">// get the list of ports:</span>
+                    <span style="color: #008800; font-weight: bold">function</span> printList(portList) {
+                    <span style="color: #888888">// portList is an array of serial port names</span>
+                    <span style="color: #008800; font-weight: bold">for</span> (<span style="color: #008800; font-weight: bold">var</span> i <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>; i <span style="color: #333333">&lt;</span> portList.length; i<span style="color: #333333">++</span>) {
+                    <span style="color: #888888">// Display the list the console:</span>
+                    print(i <span style="color: #333333">+</span> <span style="background-color: #fff0f0">&quot; &quot;</span> <span style="color: #333333">+</span> portList[i]);
+                    }
+                    }
+
+                    <span style="color: #008800; font-weight: bold">function</span> serverConnected() {
+                    print(<span style="background-color: #fff0f0">&#39;connected to server.&#39;</span>);
+                    }
+
+                    <span style="color: #008800; font-weight: bold">function</span> portOpen() {
+                    print(<span style="background-color: #fff0f0">&#39;the serial port opened.&#39;</span>)
+                    }
+
+                    <span style="color: #008800; font-weight: bold">function</span> serialError(err) {
+                    print(<span style="background-color: #fff0f0">&#39;Something went wrong with the serial port. &#39;</span> <span style="color: #333333">+</span> err);
+                    }
+
+                    <span style="color: #008800; font-weight: bold">function</span> portClose() {
+                    print(<span style="background-color: #fff0f0">&#39;The serial port closed.&#39;</span>);
+                    }
+
+                    <span style="color: #008800; font-weight: bold">function</span> serialEvent() {
+                    <span style="color: #008800; font-weight: bold">if</span> (serial.available()) {
+                        datain <span style="color: #333333">=</span> <span style="color: #007020">Number</span>(serial.readLine());
+                            <span style="color: #888888">// console.log(datain);</span>
+                    }
+                    }
+
+
+
+                    <span style="color: #008800; font-weight: bold">function</span> draw() {
+                    background(<span style="color: #0000DD; font-weight: bold">0</span>);
+                    fill(<span style="color: #0000DD; font-weight: bold">255</span>);
+                    textSize(<span style="color: #0000DD; font-weight: bold">48</span>);
+                    text(<span style="background-color: #fff0f0">&#39;Set the color of your RGB LED!&#39;</span>, <span style="color: #0000DD; font-weight: bold">250</span>, <span style="color: #0000DD; font-weight: bold">80</span>)
+                    textSize(<span style="color: #0000DD; font-weight: bold">24</span>)
+                    text(<span style="background-color: #fff0f0">&#39;The values must contain all three digits i.e 000, 024, 124 etc&#39;</span>, <span style="color: #0000DD; font-weight: bold">275</span>, <span style="color: #0000DD; font-weight: bold">150</span>)
+                    text(<span style="background-color: #fff0f0">&#39;Red:&#39;</span>, <span style="color: #0000DD; font-weight: bold">150</span>, <span style="color: #0000DD; font-weight: bold">300</span>);
+                    text(<span style="background-color: #fff0f0">&#39;Green:&#39;</span>, <span style="color: #0000DD; font-weight: bold">550</span>, <span style="color: #0000DD; font-weight: bold">300</span>);
+                    text(<span style="background-color: #fff0f0">&#39;Blue:&#39;</span>, <span style="color: #0000DD; font-weight: bold">950</span>, <span style="color: #0000DD; font-weight: bold">300</span>);
+
+                    <span style="color: #008800; font-weight: bold">if</span> (serial.available()) { <span style="color: #888888">// checking to see if the LED is connected, informing user</span>
+                        text(<span style="background-color: #fff0f0">&quot;LED Connected&quot;</span>, <span style="color: #0000DD; font-weight: bold">500</span>,<span style="color: #0000DD; font-weight: bold">225</span>);
+                    } <span style="color: #008800; font-weight: bold">else</span> {
+                        text(<span style="background-color: #fff0f0">&quot;Can&#39;t find your LED :(&quot;</span>, <span style="color: #0000DD; font-weight: bold">500</span>,<span style="color: #0000DD; font-weight: bold">225</span>);
+                    }
+
+                    }
+
+                    <span style="color: #008800; font-weight: bold">function</span> writeColor() {
+                    console.log(<span style="background-color: #fff0f0">&#39;pressed&#39;</span>)
+                    <span style="color: #008800; font-weight: bold">if</span> (serial.available()) {
+                        console.log(<span style="background-color: #fff0f0">&#39;wrote&#39;</span>)
+                        <span style="color: #008800; font-weight: bold">let</span> rVal <span style="color: #333333">=</span> redInput.value(); <span style="color: #888888">//reading in user values</span>
+                        <span style="color: #008800; font-weight: bold">let</span> gVal <span style="color: #333333">=</span> greenInput.value();
+                        <span style="color: #008800; font-weight: bold">let</span> bVal <span style="color: #333333">=</span> blueInput.value();
+                        <span style="color: #008800; font-weight: bold">let</span> r1 <span style="color: #333333">=</span> rVal <span style="color: #333333">%</span> <span style="color: #0000DD; font-weight: bold">10</span>; <span style="color: #888888">//converting them into single digits to write to serial.</span>
+                        <span style="color: #008800; font-weight: bold">let</span> r2 <span style="color: #333333">=</span> <span style="color: #007020">Math</span>.floor(rVal<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">10</span>) <span style="color: #333333">%</span> <span style="color: #0000DD; font-weight: bold">10</span>;
+                        <span style="color: #008800; font-weight: bold">let</span> r3 <span style="color: #333333">=</span> <span style="color: #007020">Math</span>.floor(rVal <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">100</span>);
+                        <span style="color: #008800; font-weight: bold">let</span> b1 <span style="color: #333333">=</span>  bVal <span style="color: #333333">%</span> <span style="color: #0000DD; font-weight: bold">10</span>;
+                        <span style="color: #008800; font-weight: bold">let</span> b2 <span style="color: #333333">=</span> <span style="color: #007020">Math</span>.floor(bVal<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">10</span>) <span style="color: #333333">%</span> <span style="color: #0000DD; font-weight: bold">10</span>;
+                        <span style="color: #008800; font-weight: bold">let</span> b3 <span style="color: #333333">=</span> <span style="color: #007020">Math</span>.floor(bVal <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">100</span>);
+                        <span style="color: #008800; font-weight: bold">let</span> g1 <span style="color: #333333">=</span>  gVal <span style="color: #333333">%</span> <span style="color: #0000DD; font-weight: bold">10</span>;
+                        <span style="color: #008800; font-weight: bold">let</span> g2 <span style="color: #333333">=</span> <span style="color: #007020">Math</span>.floor(gVal<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">10</span>) <span style="color: #333333">%</span> <span style="color: #0000DD; font-weight: bold">10</span>;
+                        <span style="color: #008800; font-weight: bold">let</span> g3 <span style="color: #333333">=</span> <span style="color: #007020">Math</span>.floor(gVal <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">100</span>);
+                        serial.write(r3);
+                        serial.write(r2);
+                        serial.write(r1);
+                        serial.write(g3);
+                        serial.write(g2);
+                        serial.write(g1);
+                        serial.write(b3);
+                        serial.write(b2);
+                        serial.write(b1);
+                        console.log([r3, r2, r1])
+                        console.log([g3, g2, g1])
+                        console.log([b3, b2, b1])
+                        <span style="color: #888888">//c = color((r3 * 100) + (r2 * 10) + r1, (g3 * 100) + (g2 * 10) + g1, (b3 * 100) + (b2 * 10) + b1);</span>
+                    }
+                    }
+                    </pre></div>
+                </code>
+                <br></br>
+                <br></br>
+                <h2>Arduino Code</h2>
+                <code>
+                    <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #888888">//modified from Debounce code @ http://www.arduino.cc/en/Tutorial/Debounce</span>
+
+                    <span style="color: #888888">// constants won&#39;t change. They&#39;re used here to set pin numbers:</span>
+
+                    <span style="color: #008800; font-weight: bold">const</span> <span style="color: #333399; font-weight: bold">int</span> buttonPin <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">2</span>; <span style="color: #888888">// the number of the pushbutton pin</span>
+
+                    <span style="color: #008800; font-weight: bold">const</span> <span style="color: #333399; font-weight: bold">int</span> red <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">9</span>; <span style="color: #888888">// the number of the red LED pin</span>
+
+                    <span style="color: #008800; font-weight: bold">const</span> <span style="color: #333399; font-weight: bold">int</span> green <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">10</span>; <span style="color: #888888">// the number of the green LED pin</span>
+
+                    <span style="color: #008800; font-weight: bold">const</span> <span style="color: #333399; font-weight: bold">int</span> blue <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">11</span>; <span style="color: #888888">// the number of the blue LED pin</span>
+
+                    <span style="color: #888888">// Variables will change:</span>
+
+                    <span style="color: #333399; font-weight: bold">int</span> buttonState <span style="color: #333333">=</span> LOW; <span style="color: #888888">// the current reading from the input pin</span>
+
+                    <span style="color: #333399; font-weight: bold">int</span> lastButtonState <span style="color: #333333">=</span> LOW; <span style="color: #888888">// the previous reading from the input pin</span>
+
+                    <span style="color: #333399; font-weight: bold">int</span> ledState <span style="color: #333333">=</span> LOW;         <span style="color: #888888">// the current state of the output pin</span>
+
+                    <span style="color: #333399; font-weight: bold">int</span> redVal <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">255</span>; <span style="color: #888888">//initial red value for LED</span>
+
+                    <span style="color: #333399; font-weight: bold">int</span> greenVal <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">200</span>; <span style="color: #888888">// initial green value for LED</span>
+
+                    <span style="color: #333399; font-weight: bold">int</span> blueVal <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">100</span>; <span style="color: #888888">// initial blue value for LED</span>
+
+                    <span style="color: #888888">// the following variables are unsigned longs because the time, measured in</span>
+
+                    <span style="color: #888888">// milliseconds, will quickly become a bigger number than can be stored in an int.</span>
+
+                    <span style="color: #333399; font-weight: bold">unsigned</span> <span style="color: #333399; font-weight: bold">long</span> lastDebounceTime <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>; <span style="color: #888888">// the last time the output pin was toggled</span>
+
+                    <span style="color: #333399; font-weight: bold">unsigned</span> <span style="color: #333399; font-weight: bold">long</span> debounceDelay <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">50</span>; <span style="color: #888888">// the debounce time; increase if the output flickers</span>
+
+                    <span style="color: #333399; font-weight: bold">void</span> <span style="color: #0066BB; font-weight: bold">setup</span>() {
+
+                    Serial.begin(<span style="color: #0000DD; font-weight: bold">9600</span>);
+
+                    Serial.setTimeout(<span style="color: #0000DD; font-weight: bold">10</span>);
+
+                    pinMode(buttonPin, INPUT);
+
+                    pinMode(red, OUTPUT);
+
+                    pinMode(green, OUTPUT);
+
+                    pinMode(blue, OUTPUT);
+
+
+                    } 
+
+                    <span style="color: #333399; font-weight: bold">void</span> <span style="color: #0066BB; font-weight: bold">loop</span>() {
+
+                    <span style="color: #888888">// read the state of the switch into a local variable:</span>
+
+                    <span style="color: #333399; font-weight: bold">int</span> reading <span style="color: #333333">=</span> digitalRead(buttonPin);
+                        <span style="color: #888888">//delay in between reads for stability</span>
+
+                    <span style="color: #888888">// check to see if you just pressed the button</span>
+
+                    <span style="color: #888888">// (i.e. the input went from LOW to HIGH), and you&#39;ve waited long enough</span>
+
+                    <span style="color: #888888">// since the last press to ignore any noise:</span>
+
+                    <span style="color: #888888">// If the switch changed, due to noise or pressing:</span>
+
+                    <span style="color: #008800; font-weight: bold">if</span> (reading <span style="color: #333333">!=</span> lastButtonState) {
+
+                    <span style="color: #888888">// reset the debouncing timer</span>
+
+                    lastDebounceTime <span style="color: #333333">=</span> millis();
+
+                    }
+
+
+                    <span style="color: #008800; font-weight: bold">if</span> ((millis() <span style="color: #333333">-</span> lastDebounceTime) <span style="color: #333333">&gt;</span> debounceDelay) {
+                        <span style="color: #888888">// whatever the reading is at, it&#39;s been there for longer than the debounce</span>
+                        <span style="color: #888888">// delay, so take it as the actual current state:</span>
+
+                        <span style="color: #888888">// if the button state has changed:</span>
+                        <span style="color: #008800; font-weight: bold">if</span> (reading <span style="color: #333333">!=</span> buttonState) {
+                        buttonState <span style="color: #333333">=</span> reading;
+
+                        <span style="color: #888888">// only toggle the LED if the new button state is HIGH</span>
+                        <span style="color: #008800; font-weight: bold">if</span> (buttonState <span style="color: #333333">==</span> HIGH) {
+                            ledState <span style="color: #333333">=</span> <span style="color: #333333">!</span>ledState;
+                        }
+                        }
+                    }
+
+                    <span style="color: #888888">// set the LED:</span>
+                    <span style="color: #008800; font-weight: bold">if</span> (ledState <span style="color: #333333">==</span> HIGH) {
+                        set(redVal, greenVal, blueVal);
+                        <span style="color: #008800; font-weight: bold">if</span> (Serial.available() <span style="color: #333333">&gt;</span> <span style="color: #0000DD; font-weight: bold">0</span>) {
+                        <span style="color: #333399; font-weight: bold">int</span> r1 <span style="color: #333333">=</span> Serial.read();<span style="color: #888888">//read in first byte for red led</span>
+                        <span style="color: #333399; font-weight: bold">int</span> r2 <span style="color: #333333">=</span> Serial.read();<span style="color: #888888">//read in second byte for red led</span>
+                        <span style="color: #333399; font-weight: bold">int</span> r3 <span style="color: #333333">=</span> Serial.read();<span style="color: #888888">// red in third byte for red led</span>
+                        <span style="color: #333399; font-weight: bold">int</span> g1 <span style="color: #333333">=</span> Serial.read();<span style="color: #888888">//repeated for each color</span>
+                        <span style="color: #333399; font-weight: bold">int</span> g2 <span style="color: #333333">=</span> Serial.read();
+                        <span style="color: #333399; font-weight: bold">int</span> g3 <span style="color: #333333">=</span> Serial.read();
+                        <span style="color: #333399; font-weight: bold">int</span> b1 <span style="color: #333333">=</span> Serial.read();
+                        <span style="color: #333399; font-weight: bold">int</span> b2 <span style="color: #333333">=</span> Serial.read();
+                        <span style="color: #333399; font-weight: bold">int</span> b3 <span style="color: #333333">=</span> Serial.read();
+                        Serial.print(<span style="background-color: #fff0f0">&quot;received &quot;</span>);
+                        Serial.print(<span style="background-color: #fff0f0">&quot;Red &quot;</span>);
+                        Serial.print(r1);
+                        Serial.print(r2);
+                        Serial.println(r3);
+                        Serial.print(<span style="background-color: #fff0f0">&quot;Green &quot;</span>);
+                        Serial.print(g1);
+                        Serial.print(g2);
+                        Serial.println(g3);
+                        Serial.print(<span style="background-color: #fff0f0">&quot;Blue&quot;</span>);
+                        Serial.print(b1);
+                        Serial.print(b2);
+                        Serial.println(b3);
+                        delay(<span style="color: #0000DD; font-weight: bold">1000</span>);
+                        <span style="color: #333399; font-weight: bold">int</span> rNum <span style="color: #333333">=</span> r3 <span style="color: #333333">+</span> (r2 <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">10</span>) <span style="color: #333333">+</span> (r1 <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">100</span>); <span style="color: #888888">// compute the redVal based in serial input</span>
+                        <span style="color: #333399; font-weight: bold">int</span> gNum <span style="color: #333333">=</span> g3 <span style="color: #333333">+</span> (g2 <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">10</span>) <span style="color: #333333">+</span> (g1 <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">100</span>);<span style="color: #888888">// repeated for other colors</span>
+                        <span style="color: #333399; font-weight: bold">int</span> bNum <span style="color: #333333">=</span> b3 <span style="color: #333333">+</span> (b2 <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">10</span>) <span style="color: #333333">+</span> (b1 <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">100</span>);
+                        set(rNum, gNum, bNum);
+                        }
+                    } <span style="color: #008800; font-weight: bold">else</span> {
+                        off();
+                    }
+                    Serial.println(ledState);
+                    delay(<span style="color: #0000DD; font-weight: bold">10</span>);
+
+                    <span style="color: #888888">// save the reading. Next time through the loop, it&#39;ll be the lastButtonState:</span>
+                    lastButtonState <span style="color: #333333">=</span> reading;
+                    }
+
+                    <span style="color: #333399; font-weight: bold">void</span> <span style="color: #0066BB; font-weight: bold">set</span> (<span style="color: #333399; font-weight: bold">int</span> r, <span style="color: #333399; font-weight: bold">int</span> g, <span style="color: #333399; font-weight: bold">int</span> b ) {
+                    redVal <span style="color: #333333">=</span> r;<span style="color: #888888">//computed red val</span>
+                    greenVal <span style="color: #333333">=</span> g; <span style="color: #888888">//computed green val</span>
+                    blueVal <span style="color: #333333">=</span> b;<span style="color: #888888">//computed blue val</span>
+                    analogWrite(red, redVal);
+                    Serial.print(<span style="background-color: #fff0f0">&quot;redVal set to &quot;</span>);
+                    Serial.println(redVal);
+                    analogWrite(green, greenVal );
+                    Serial.print(<span style="background-color: #fff0f0">&quot;greenVal set to &quot;</span>);
+                    Serial.println(greenVal);
+                    analogWrite(blue, blueVal);
+                    Serial.print(<span style="background-color: #fff0f0">&quot;blueVal set to &quot;</span>);
+                    Serial.println(blueVal);
+                    }
+
+                    <span style="color: #333399; font-weight: bold">void</span> <span style="color: #0066BB; font-weight: bold">off</span> () {
+                    analogWrite(red, <span style="color: #0000DD; font-weight: bold">0</span>);
+                    analogWrite(green, <span style="color: #0000DD; font-weight: bold">0</span>);
+                    analogWrite(blue, <span style="color: #0000DD; font-weight: bold">0</span>);
+                    } 
+                    </pre></div>
+
+                </code>
+                <h2>Result</h2>
+                <img src="a6.gif" width=400>
+            </p>
+        </div>
+        
+    </body>
+</html>
