@@ -16,6 +16,21 @@
             <p>
                 <h2>Concept</h2>
                 <p>An LED display that tells you who is currently at home.</p>
+            <img src="whome.jpg" width="640">
+            </p>
+            <p>
+                <h2>Technical Writeup</h2>
+                <p>When connected to power, this display will prompt you to press the start button the begin output. It shows you who is currently at home and will update automatically with a message when a registered user arrives at home.</p>
+                <p>This display uses the following technologies to function:</p>
+                <ul>
+                    <li>ELEGOO R3 Board</li>
+                    <li>Node.js</li>
+                    <li>Node NMAP Library</li>
+                </ul>
+                <p>The following diagram can be referenced to get an overview of how the display works on the back end.</p>
+            <img src="overview.png">
+            <p>The data for the display comes from a Node.js server. This server uses the NMAP library to scan a home's main router for connected devices. The server then outputs the result to the board via serial communication.</p>
+            <p>Users are registered via entering the MAC address of their phones. Currently this is hard coded but a future iteration could allow for registration through the display.</p>
             </p>
             <p>
                 <h2>Demo</h2>
@@ -24,8 +39,8 @@
             <p>
                 <h2>Schematic</h2>
                 <img src="finalschem.png" width=1200></a>
-                <h2>Result</h2>
-                <img src="final.jpg" width=1200/>
+                <h2>Circuit</h2>
+                </img src="final.jpg" width=1200>
                 <h2>Node.js Code</h2>
                 <code>
                     <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">const</span> http <span style="color: #333333">=</span> require(<span style="background-color: #fff0f0">&#39;http&#39;</span>) <span style="color: #888888">// importing http</span>
