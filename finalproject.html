@@ -1,0 +1,246 @@
+<!DOCTYPE html> 
+<html> 
+    <head> 
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+        <title>Nadir's Final Project: Sensing Who's at Home</title> 
+
+        <link href="style.css" media="screen" rel="stylesheet" type="text/css" />
+
+    </head> 
+    <body> 
+
+        <div class="header">
+            <h1>Final Project: Sensing Who's at Home</h1>
+            <p>
+                <h2>Concept</h2>
+                <p>An LED display that tells you who is currently at home.</p>
+            </p>
+            <p>
+                <h2>Demo</h2>
+                <iframe src="https://drive.google.com/file/d/1rAh0DXUV9AWHBzDjmoqOuYmMK2uXUyQU/preview" width="640" height="480"></iframe>
+            </p>
+            <p>
+                <h2>Schematic</h2>
+                <img src="finalschem.png" width=1200></a>
+                <h2>Result</h2>
+                <img src="final.jpg" width=1200/>
+                <h2>Node.js Code</h2>
+                <code>
+                    <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">const</span> http <span style="color: #333333">=</span> require(<span style="background-color: #fff0f0">&#39;http&#39;</span>) <span style="color: #888888">// importing http</span>
+                    <span style="color: #008800; font-weight: bold">const</span> port <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">3000</span> <span style="color: #888888">//port to host server</span>
+                    <span style="color: #008800; font-weight: bold">const</span> nmap <span style="color: #333333">=</span> require(<span style="background-color: #fff0f0">&#39;node-nmap&#39;</span>) <span style="color: #888888">//importing nmap</span>
+                    nmap.nmapLocation <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&quot;nmap&quot;</span>
+                    <span style="color: #008800; font-weight: bold">const</span> ip <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;192.168.0.0/24&#39;</span> <span style="color: #888888">// default gateway for router</span>
+                    <span style="color: #008800; font-weight: bold">const</span> SerialPort <span style="color: #333333">=</span> require(<span style="background-color: #fff0f0">&#39;serialport&#39;</span>); <span style="color: #888888">//import serial port for serial i/o</span>
+                    <span style="color: #008800; font-weight: bold">const</span> Readline <span style="color: #333333">=</span> require(<span style="background-color: #fff0f0">&#39;@serialport/parser-readline&#39;</span>); <span style="color: #888888">//import to parse serial data</span>
+                    <span style="color: #008800; font-weight: bold">const</span> sport <span style="color: #333333">=</span> <span style="color: #008800; font-weight: bold">new</span> SerialPort(<span style="background-color: #fff0f0">&#39;COM6&#39;</span>, { baudRate<span style="color: #333333">:</span> <span style="color: #0000DD; font-weight: bold">9600</span> }); <span style="color: #888888">// variable for reading/writing serial data</span>
+                    <span style="color: #008800; font-weight: bold">const</span> parser <span style="color: #333333">=</span> sport.pipe(<span style="color: #008800; font-weight: bold">new</span> Readline({ delimiter<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&#39;\n&#39;</span> })); <span style="color: #888888">// variable for parsing read serial data</span>
+                    <span style="color: #888888">// Read the port data</span>
+                    sport.on(<span style="background-color: #fff0f0">&quot;open&quot;</span>, () <span style="color: #333333">=&gt;</span> {
+                    console.log(<span style="background-color: #fff0f0">&#39;serial port open&#39;</span>);
+                    });
+                    <span style="color: #888888">// Logging arduino serial output</span>
+                    parser.on(<span style="background-color: #fff0f0">&#39;data&#39;</span>, data <span style="color: #333333">=&gt;</span>{
+                    console.log(<span style="background-color: #fff0f0">&#39;got word from arduino:&#39;</span>, data);
+                    });
+                    <span style="color: #888888">// Sending test input</span>
+                    sport.write(<span style="background-color: #fff0f0">&#39;hello from node\n&#39;</span>, (err) <span style="color: #333333">=&gt;</span> {
+                        <span style="color: #008800; font-weight: bold">if</span> (err) {
+                        <span style="color: #008800; font-weight: bold">return</span> console.log(<span style="background-color: #fff0f0">&#39;Error on write: &#39;</span>, err.message);
+                        }
+                        console.log(<span style="background-color: #fff0f0">&#39;message written&#39;</span>);
+                    });
+
+                    <span style="color: #888888">// Object for mac addresses to user names</span>
+                    <span style="color: #008800; font-weight: bold">const</span> registered <span style="color: #333333">=</span> {
+                        <span style="background-color: #fff0f0">&#39;E2:CA:DD:78:B6:2F&#39;</span><span style="color: #333333">:</span> <span style="background-color: #fff0f0">&#39;nadir&#39;</span>,
+                        <span style="background-color: #fff0f0">&#39;80:60:B7:1E:33:B1&#39;</span><span style="color: #333333">:</span> <span style="background-color: #fff0f0">&#39;jeff&#39;</span>
+                    }
+
+                    <span style="color: #888888">// server returned by function</span>
+                    <span style="color: #008800; font-weight: bold">const</span> server <span style="color: #333333">=</span> http.createServer(<span style="color: #008800; font-weight: bold">function</span>(req, response) {
+                        console.log(<span style="background-color: #fff0f0">&quot;Request handler random was called.&quot;</span>);
+                        response.writeHead(<span style="color: #0000DD; font-weight: bold">200</span>, {<span style="background-color: #fff0f0">&quot;Content-Type&quot;</span><span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;application/json&quot;</span>}); <span style="color: #888888">//setting server header</span>
+                        <span style="color: #008800; font-weight: bold">var</span> quickscan <span style="color: #333333">=</span> <span style="color: #008800; font-weight: bold">new</span> nmap.QuickScan(ip) <span style="color: #888888">// starting the nmap scan</span>
+                        quickscan.on(<span style="background-color: #fff0f0">&#39;complete&#39;</span>, <span style="color: #008800; font-weight: bold">function</span>(data){ <span style="color: #888888">//completing the scan</span>
+                        <span style="color: #888888">//console.log(data);</span>
+                        <span style="color: #888888">//var json = JSON.stringify(data)</span>
+                        <span style="color: #008800; font-weight: bold">var</span> json <span style="color: #333333">=</span> {} <span style="color: #888888">//output JSON</span>
+                        <span style="color: #008800; font-weight: bold">var</span> found <span style="color: #333333">=</span> <span style="color: #008800; font-weight: bold">false</span> 
+                        <span style="color: #008800; font-weight: bold">for</span> (<span style="color: #008800; font-weight: bold">var</span> i <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>; i <span style="color: #333333">&lt;</span> data.length; i<span style="color: #333333">++</span>) { <span style="color: #888888">//loops over devices returned from the scan and matches against registered users</span>
+                            <span style="color: #008800; font-weight: bold">var</span> obj <span style="color: #333333">=</span> data[i]
+                            mac <span style="color: #333333">=</span> obj[<span style="background-color: #fff0f0">&quot;mac&quot;</span>];
+                            console.log(<span style="background-color: #fff0f0">&#39;read mac&#39;</span>, mac)
+                            <span style="color: #008800; font-weight: bold">if</span> (registered[mac]) {
+                                json[mac] <span style="color: #333333">=</span> registered[mac]
+                                found <span style="color: #333333">=</span> <span style="color: #008800; font-weight: bold">true</span>;
+                                sport.write(<span style="background-color: #fff0f0">&quot;&quot;</span> <span style="color: #333333">+</span> registered[mac] <span style="color: #333333">+</span> <span style="background-color: #fff0f0">&quot;\n&quot;</span>, (err) <span style="color: #333333">=&gt;</span> { <span style="color: #888888">// if match, write to serial</span>
+                                    <span style="color: #008800; font-weight: bold">if</span> (err) {
+                                        console.log(<span style="background-color: #fff0f0">&#39;error in sending mac&#39;</span>)
+                                    } <span style="color: #008800; font-weight: bold">else</span> {
+                                        console.log(<span style="background-color: #fff0f0">&#39;mac sent&#39;</span>)
+                                    }
+                                    })  
+                            }    
+                        }
+                        <span style="color: #008800; font-weight: bold">if</span> (<span style="color: #333333">!</span>found) {
+                            sport.write(<span style="background-color: #fff0f0">&quot;notfound&quot;</span>, (err) <span style="color: #333333">=&gt;</span> {
+                                <span style="color: #008800; font-weight: bold">if</span> (err) {
+                                    console.log(<span style="background-color: #fff0f0">&#39;error in sending mac&#39;</span>)
+                                } <span style="color: #008800; font-weight: bold">else</span> {
+                                    console.log(<span style="background-color: #fff0f0">&#39;no mac&#39;</span>)
+                                }
+                                })
+                        }
+                        json <span style="color: #333333">=</span> JSON.stringify(json)
+                        response.end(json) <span style="color: #888888">// outputting JSON with found users</span>
+                        });
+                        quickscan.on(<span style="background-color: #fff0f0">&#39;error&#39;</span>, <span style="color: #008800; font-weight: bold">function</span>(error){
+                            console.log(error);
+                            json <span style="color: #333333">=</span> JSON.stringify({
+                                error<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&#39;Error&#39;</span>
+                        })
+                        response.end(json)
+                        });
+                    })
+
+                    server.listen(port, <span style="color: #008800; font-weight: bold">function</span>(error) {
+                        <span style="color: #008800; font-weight: bold">if</span> (error) {
+                            console.log(<span style="background-color: #fff0f0">&#39;error:&#39;</span>, error)
+                        } <span style="color: #008800; font-weight: bold">else</span> {
+                            console.log(<span style="background-color: #fff0f0">&#39;Server on &#39;</span> <span style="color: #333333">+</span> port)
+                        }
+                    })
+
+
+                    
+                    </pre></div>
+                </code>
+                <br></br>
+                <br></br>
+                <h2>Arduino Code</h2>
+                <code>
+                                        <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #557799">#include &lt;LiquidCrystal.h&gt;</span>
+
+                    <span style="color: #888888">/*</span>
+                    <span style="color: #888888">  Debounce code modified from:</span>
+                    <span style="color: #888888">  http://www.arduino.cc/en/Tutorial/Debounce</span>
+                    <span style="color: #888888">*/</span>
+
+                    <span style="color: #888888">// constants won&#39;t change. They&#39;re used here to set pin numbers:</span>
+                    <span style="color: #008800; font-weight: bold">const</span> <span style="color: #333399; font-weight: bold">int</span> buttonPin <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">2</span>;    <span style="color: #888888">// the number of the pushbutton pin</span>
+                    <span style="color: #008800; font-weight: bold">const</span> <span style="color: #333399; font-weight: bold">char</span><span style="color: #333333">*</span> mac <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&quot;nadir&quot;</span>; <span style="color: #888888">//name of user1 to match against serial input</span>
+                    <span style="color: #008800; font-weight: bold">const</span> <span style="color: #333399; font-weight: bold">char</span><span style="color: #333333">*</span> mac2 <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&quot;jeff&quot;</span>; <span style="color: #888888">//name of user2 against serial input</span>
+
+                    <span style="color: #888888">// Variables will change:</span>
+                    <span style="color: #333399; font-weight: bold">int</span> lcdState <span style="color: #333333">=</span> LOW;         <span style="color: #888888">// the current state of the output pin</span>
+                    <span style="color: #333399; font-weight: bold">int</span> buttonState;             <span style="color: #888888">// the current reading from the input pin</span>
+                    <span style="color: #333399; font-weight: bold">int</span> lastButtonState <span style="color: #333333">=</span> LOW;   <span style="color: #888888">// the previous reading from the input pin</span>
+
+                    <span style="color: #888888">// the following variables are unsigned longs because the time, measured in</span>
+                    <span style="color: #888888">// milliseconds, will quickly become a bigger number than can be stored in an int.</span>
+                    <span style="color: #333399; font-weight: bold">unsigned</span> <span style="color: #333399; font-weight: bold">long</span> lastDebounceTime <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>;  <span style="color: #888888">// the last time the output pin was toggled</span>
+                    <span style="color: #333399; font-weight: bold">unsigned</span> <span style="color: #333399; font-weight: bold">long</span> debounceDelay <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">50</span>;    <span style="color: #888888">// the debounce time; increase if the output flickers</span>
+                    LiquidCrystal <span style="color: #0066BB; font-weight: bold">lcd</span>(<span style="color: #0000DD; font-weight: bold">12</span>, <span style="color: #0000DD; font-weight: bold">11</span>, <span style="color: #0000DD; font-weight: bold">9</span>, <span style="color: #0000DD; font-weight: bold">8</span>, <span style="color: #0000DD; font-weight: bold">5</span>, <span style="color: #0000DD; font-weight: bold">4</span>); <span style="color: #888888">// setting the lcd display </span>
+                    <span style="color: #333399; font-weight: bold">int</span> atHome[] <span style="color: #333333">=</span> {<span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">0</span>}; <span style="color: #888888">// users at home, 0 if not home, 1 if home</span>
+
+                    String received <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&quot;&quot;</span>; <span style="color: #888888">//variable for storing incoming serial data</span>
+                    <span style="color: #333399; font-weight: bold">void</span> <span style="color: #0066BB; font-weight: bold">setup</span>() {
+                    Serial.begin(<span style="color: #0000DD; font-weight: bold">9600</span>);
+
+                    Serial.setTimeout(<span style="color: #0000DD; font-weight: bold">10</span>);
+                    pinMode(buttonPin, INPUT);
+
+                    <span style="color: #888888">// set initial LED state</span>
+                    }
+
+                    <span style="color: #333399; font-weight: bold">void</span> <span style="color: #0066BB; font-weight: bold">loop</span>() {
+                    <span style="color: #888888">// read the state of the switch into a local variable:</span>
+                    <span style="color: #333399; font-weight: bold">int</span> reading <span style="color: #333333">=</span> digitalRead(buttonPin);
+
+                    <span style="color: #888888">// check to see if you just pressed the button</span>
+                    <span style="color: #888888">// (i.e. the input went from LOW to HIGH), and you&#39;ve waited long enough</span>
+                    <span style="color: #888888">// since the last press to ignore any noise:</span>
+
+                    <span style="color: #888888">// If the switch changed, due to noise or pressing:</span>
+                    <span style="color: #008800; font-weight: bold">if</span> (reading <span style="color: #333333">!=</span> lastButtonState) {
+                        <span style="color: #888888">// reset the debouncing timer</span>
+                        lastDebounceTime <span style="color: #333333">=</span> millis();
+                    }
+
+                    <span style="color: #008800; font-weight: bold">if</span> ((millis() <span style="color: #333333">-</span> lastDebounceTime) <span style="color: #333333">&gt;</span> debounceDelay) {
+                        <span style="color: #888888">// whatever the reading is at, it&#39;s been there for longer than the debounce</span>
+                        <span style="color: #888888">// delay, so take it as the actual current state:</span>
+
+                        <span style="color: #888888">// if the button state has changed:</span>
+                        <span style="color: #008800; font-weight: bold">if</span> (reading <span style="color: #333333">!=</span> buttonState) {
+                        buttonState <span style="color: #333333">=</span> reading;
+
+                        <span style="color: #888888">// only toggle the lcd display if the new button state is HIGH</span>
+                        <span style="color: #008800; font-weight: bold">if</span> (buttonState <span style="color: #333333">==</span> HIGH) {
+                            lcdState <span style="color: #333333">=</span> <span style="color: #333333">!</span>lcdState;
+                        }
+                        }
+                    }
+                    lcd.begin(<span style="color: #0000DD; font-weight: bold">16</span>, <span style="color: #0000DD; font-weight: bold">2</span>);
+
+                    <span style="color: #888888">// set the lcd display according to state:</span>
+                    <span style="color: #008800; font-weight: bold">if</span> (lcdState <span style="color: #333333">==</span> HIGH) {
+                        lcd.clear(); 
+                        lcd.setCursor(<span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">0</span>);
+                        lcd.print(<span style="background-color: #fff0f0">&quot;Home:&quot;</span>);
+                        <span style="color: #008800; font-weight: bold">if</span> (atHome[<span style="color: #0000DD; font-weight: bold">0</span>] <span style="color: #333333">==</span> <span style="color: #0000DD; font-weight: bold">1</span>) {
+                            lcd.print(<span style="background-color: #fff0f0">&quot; Nads&quot;</span>);
+                        }
+                        <span style="color: #008800; font-weight: bold">if</span> (atHome[<span style="color: #0000DD; font-weight: bold">1</span>] <span style="color: #333333">==</span> <span style="color: #0000DD; font-weight: bold">1</span>) {
+                            lcd.print(<span style="background-color: #fff0f0">&quot;, Jeff&quot;</span>);
+                        }
+                        <span style="color: #008800; font-weight: bold">while</span> (Serial.available() <span style="color: #333333">&gt;</span> <span style="color: #0000DD; font-weight: bold">0</span>) { <span style="color: #888888">//look for serial data from server</span>
+                            lcd.clear();
+                            lcd.print(<span style="background-color: #fff0f0">&quot;Sensing...&quot;</span>);
+                            delay(<span style="color: #0000DD; font-weight: bold">500</span>);
+                            String s <span style="color: #333333">=</span> Serial.readStringUntil(<span style="color: #0044DD">&#39;\n&#39;</span>); <span style="color: #888888">//read serial data</span>
+                            s.trim();
+                            Serial.print(<span style="background-color: #fff0f0">&quot;received: &quot;</span>);
+                            Serial.println(s);
+                            Serial.print(<span style="background-color: #fff0f0">&quot;mac: &quot;</span>);
+                            Serial.println(mac);
+                            <span style="color: #008800; font-weight: bold">if</span> (s <span style="color: #333333">==</span> mac) { <span style="color: #888888">// checking for match with user1</span>
+                            lcd.clear();
+                            <span style="color: #008800; font-weight: bold">if</span> (atHome[<span style="color: #0000DD; font-weight: bold">0</span>] <span style="color: #333333">!=</span> <span style="color: #0000DD; font-weight: bold">1</span>) {
+                                lcd.print(<span style="background-color: #fff0f0">&quot;Nads is home!&quot;</span>);
+                                atHome[<span style="color: #0000DD; font-weight: bold">0</span>] <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">1</span>;
+                            }
+                            Serial.println(<span style="background-color: #fff0f0">&quot;received mac&quot;</span>);
+                            delay(<span style="color: #0000DD; font-weight: bold">1000</span>);
+                            }
+                            <span style="color: #008800; font-weight: bold">if</span> (s <span style="color: #333333">==</span> mac2) { <span style="color: #888888">// checking for match with user2</span>
+                            lcd.clear();
+                            <span style="color: #008800; font-weight: bold">if</span> (atHome[<span style="color: #0000DD; font-weight: bold">1</span>] <span style="color: #333333">!=</span> <span style="color: #0000DD; font-weight: bold">1</span>) {
+                                lcd.print(<span style="background-color: #fff0f0">&quot;Jeff is home!&quot;</span>);
+                                atHome[<span style="color: #0000DD; font-weight: bold">1</span>] <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">1</span>;
+                            }
+                            Serial.println(<span style="background-color: #fff0f0">&quot;received mac&quot;</span>);
+                            delay(<span style="color: #0000DD; font-weight: bold">1000</span>);
+                            }
+                        }     
+                    } <span style="color: #008800; font-weight: bold">else</span> {
+                        lcd.print(<span style="background-color: #fff0f0">&quot;Press start to&quot;</span>);
+                        lcd.setCursor(<span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">1</span>);
+                        lcd.print(<span style="background-color: #fff0f0">&quot;learn whos home...&quot;</span>);
+                    }
+                    Serial.println(ledState);
+                    delay(<span style="color: #0000DD; font-weight: bold">10</span>);
+
+                    <span style="color: #888888">// save the reading. Next time through the loop, it&#39;ll be the lastButtonState:</span>
+                    lastButtonState <span style="color: #333333">=</span> reading;
+                    }
+                    </pre></div>
+                </code>
+            </p>
+        </div>
+        
+    </body>
+</html>
